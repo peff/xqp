@@ -36,6 +36,7 @@ sub check_queue {
     $self->{current} = shift @{$self->{queue}};
     $self->_qnotify;
     $self->_notify(play => $self->{current});
+    print STDERR "play $self->{current}\n";
     $self->{player}->set_file($self->{current});
     $self->{player}->play;
   }
