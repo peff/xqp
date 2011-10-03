@@ -138,8 +138,9 @@ sub cmd_list {
 
 sub cmd_advance {
   my ($self, $c, $bool) = @_;
-  $self->{advance} = !!$bool;
-  $c->ok;
+  $self->{advance} = $bool ? 1 : 0
+    if defined $bool;
+  $c->ok($self->{advance});
 }
 
 sub cmd_current {
