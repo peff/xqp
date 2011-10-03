@@ -1,0 +1,71 @@
+xqp protocol reference
+======================
+
+This document describes the protocol by which clients can communicate
+with the xqp daemon.
+
+
+General Format
+--------------
+
+When a client connects to the server, the server issues a greeting
+message (identical to a response header, explained below). Besides this
+initial greeting, the conversation consists entirely of requests from
+the client and responses from the server.
+
+Requests and responses have a similar form: a header line, followed by
+zero or more argument lines (each starting with "-"), followed by a
+terminating line (starting with "."). For a request, the header line
+consists of the name of the request to be performed.  For a response,
+the header line consists of a status code (either "OK" or "NO"
+indicating success or failure of the most recent request), followed by
+arbitrary comments.
+
+A loose BNF is given below:
+
+  GREETING ::= RESPONSE_HEADER
+  RESPONSE ::= RESPONSE_HEADER ARGUMENT* TERMINATOR
+  REQUEST ::= REQUEST_HEADER ARGUMENT* TERMINATOR
+  RESPONSE_HEADER ::= ("OK" | "NO") NON-NL* NL
+  REQUEST_HEADER ::= NON-NL* NL
+  ARGUMENT ::= "-" NON-NL* NL
+  TERMINATOR ::= "." NON-NL* NL
+  NON-NL ::= [any character except newline (ASCII 0x0a)]
+  NL ::= [newline (ASCII 0x0a)]
+
+All values are interpreted as ASCII text. Numbers are given as ASCII
+decimal.
+
+
+Specific Commands
+-----------------
+
+quit:: Instruct the server to exit.
+
+next:: Stop playing the current track.
+
+clear:: Remove all elements from the queue.
+
+advance:: Turn on/off queue advancement if argument is 1/0.
+
+current:: If no track is playing, returns zero arguments. Otherwise,
+returns one argument, consisting of the filename of the currently
+playing track.
+
+position:: If no track is playing, returns zero arguments. Otherwise,
+returns one argument, consisting of the position within the track as
+measured in milliseconds from the start of the track.
+
+seek:: For each argument, seek the currently playing track to the
+position in milliseconds given by the argument. If the position begins
+with +/-, instead seek relative forward or backward from the current
+position.
+
+append:: Append all provided arguments to the queue.
+
+prepend:: Prepend all provided arguments to the queue.
+
+replace:: Replace the contents of the queue with the provided arguments.
+
+list:: Returns zero or more arguments representing the ordered list of
+tracks in the queue.
