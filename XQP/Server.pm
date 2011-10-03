@@ -10,6 +10,7 @@ sub new {
   $self->{advance} = 1;
   $self->{current} = undef;
   $self->{queue} = [];
+  $self->{history} = [];
   return $self;
 }
 
@@ -44,6 +45,7 @@ sub check_queue {
 
 sub track_done {
   my $self = shift;
+  unshift @{$self->{history}}, $self->{current};
   $self->{current} = undef;
   $self->_notify('done');
   $self->check_queue;
@@ -155,6 +157,11 @@ sub cmd_replace {
 sub cmd_list {
   my ($self, $c, $range) = @_;
   $c->ok(_slice($self->{queue}, $range));
+}
+
+sub cmd_history {
+  my ($self, $c, $range) = @_;
+  $c->ok(_slice($self->{history}, $range));
 }
 
 sub cmd_advance {
