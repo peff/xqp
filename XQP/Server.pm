@@ -34,6 +34,8 @@ sub check_queue {
 
   if ($self->{advance} && !defined $self->{current} && @{$self->{queue}}) {
     $self->{current} = shift @{$self->{queue}};
+    $self->_qnotify;
+    $self->_notify(play => $self->{current});
     $self->{player}->set_file($self->{current});
     $self->{player}->play;
   }
@@ -42,22 +44,48 @@ sub check_queue {
 sub track_done {
   my $self = shift;
   $self->{current} = undef;
+  $self->_notify('done');
   $self->check_queue;
+}
+
+sub subscribe {
+  my $self = shift;
+  my $what = shift;
+  push @{$self->{callbacks}->{$what}}, @_;
+}
+
+sub _notify {
+  my $self = shift;
+  my $what = shift;
+
+  my $cbv = $self->{callbacks}->{$what}
+    or return;
+  foreach my $cb (@$cbv) {
+    $cb->(@_);
+  }
+}
+
+sub _qnotify {
+  my $self = shift;
+  $self->_notify(queue => @{$self->{queue}});
 }
 
 sub append {
   my $self = shift;
   push @{$self->{queue}}, @_;
+  $self->_qnotify;
 }
 
 sub prepend {
   my $self = shift;
   unshift @{$self->{queue}}, @_;
+  $self->_qnotify;
 }
 
 sub replace {
   my $self = shift;
   $self->{queue} = [@_];
+  $self->_qnotify;
 }
 
 sub cmd {
