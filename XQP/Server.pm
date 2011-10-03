@@ -89,6 +89,12 @@ sub replace {
   $self->_qnotify;
 }
 
+sub clear {
+  my $self = shift;
+  $self->{queue} = [];
+  $self->_qnotify;
+}
+
 sub cmd {
   my ($self, $c, $cmd, @args) = @_;
 
@@ -110,7 +116,7 @@ sub cmd_quit {
 
 sub cmd_clear {
   my ($self, $c) = @_;
-  $self->{queue} = [];
+  $self->clear;
   $c->ok;
 }
 
