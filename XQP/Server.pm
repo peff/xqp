@@ -95,6 +95,25 @@ sub clear {
   $self->_qnotify;
 }
 
+sub _parse_range {
+  my ($range, $min, $max) = @_;
+  my ($low, $high) =
+    !defined $range ? ($min, $max) :
+    $range =~ /^(\d+)$/ ? ($1-1, $1-1) :
+    $range =~ /^(\d+)-(\d+)$/ ? ($1-1, $2-1) :
+    ($min, $max);
+  if ($low < $min) { $low = $min }
+  if ($high > $max) { $high = $max }
+
+  return ($low, $high);
+}
+
+sub queue_slice {
+  my ($self, $range) = @_;
+  my ($low, $high) = _parse_range($range, 0, $#{$self->{queue}});
+  return (@{$self->{queue}})[$low..$high];
+}
+
 sub cmd {
   my ($self, $c, $cmd, @args) = @_;
 
@@ -139,8 +158,8 @@ sub cmd_replace {
 }
 
 sub cmd_list {
-  my ($self, $c, @args) = @_;
-  $c->ok(@{$self->{queue}});
+  my ($self, $c, $range) = @_;
+  $c->ok($self->queue_slice($range));
 }
 
 sub cmd_advance {
