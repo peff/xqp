@@ -198,8 +198,10 @@ sub cmd_position {
 
 sub cmd_next {
   my ($self, $c) = @_;
-  $self->{player}->stop;
-  $self->track_done;
+  if (defined $self->{current}) {
+    $self->{player}->stop;
+    $self->track_done;
+  }
   $c->ok;
 }
 
